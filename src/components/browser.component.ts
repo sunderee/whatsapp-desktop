@@ -12,8 +12,6 @@ import {
     shell
 } from 'electron';
 import EventEmitter from 'events';
-import { readdirSync, readFileSync } from 'fs';
-import { resolve } from 'path';
 
 export class BrowserComponent extends EventEmitter {
     private window?: BrowserWindow;
@@ -44,10 +42,6 @@ export class BrowserComponent extends EventEmitter {
         this.window?.on('close', () => {
             this.app.quit();
             process.exit(0);
-        });
-
-        this.window?.webContents.on('did-finish-load', async () => {
-            await this.loadScripts();
         });
 
         this.window?.webContents.on('will-navigate', this.handleRedirect);
@@ -116,18 +110,6 @@ export class BrowserComponent extends EventEmitter {
                 result(content);
             }
         );
-    }
-
-    private async loadScripts(): Promise<void> {
-        const injectedScripts = readdirSync(resolve(__dirname, '..', 'scripts'));
-        for (const scriptFileName of injectedScripts) {
-            const script = readFileSync(resolve(__dirname, '..', 'scripts', scriptFileName), 'utf-8');
-            try {
-                await this.window?.webContents.executeJavaScript(`${script};`);
-            } catch (error) {
-                console.log(error);
-            }
-        }
     }
 
     private handleRedirect(event: Event, url: string): void {
