@@ -24,29 +24,6 @@ export class BrowserComponent extends EventEmitter {
         this.createMenu();
     }
 
-    initializeEvents(): void {
-        this.window?.on('page-title-updated', (event: Event, title: string) => {
-            event.preventDefault();
-
-            title = title.replace(/(\([0-9]+\) )?.*/, '$1WhatsApp-Desktop');
-            this.window?.setTitle(title);
-            this.emit('title-updated', title);
-
-            if (!/\([0-9]+\)/.test(title)) {
-                this.emit('clear-title');
-                this.window?.flashFrame(true);
-                this.emit('notification:clear');
-            }
-        });
-
-        this.window?.on('close', () => {
-            this.app.quit();
-            process.exit(0);
-        });
-
-        this.window?.webContents.on('will-navigate', this.handleRedirect);
-    }
-
     private initialize(): void {
         this.window = new BrowserWindow({
             show: true,
@@ -112,11 +89,27 @@ export class BrowserComponent extends EventEmitter {
         );
     }
 
-    private handleRedirect(event: Event, url: string): void {
-        if (!url.startsWith('https://web.whatsapp.com/')) {
+    initializeEvents(): void {
+        this.window?.on('page-title-updated', (event: Event, title: string) => {
             event.preventDefault();
-            shell.openExternal(url);
-        }
+
+            title = title.replace(/(\([0-9]+\) )?.*/, '$1WhatsApp-Desktop');
+            this.window?.setTitle(title);
+            this.emit('title-updated', title);
+
+            if (!/\([0-9]+\)/.test(title)) {
+                this.emit('clear-title');
+                this.window?.flashFrame(true);
+                this.emit('notification:clear');
+            }
+        });
+
+        this.window?.on('close', () => {
+            this.app.quit();
+            process.exit(0);
+        });
+
+        this.window?.webContents.on('will-navigate', this.handleRedirect);
     }
 
     private createMenu(): void {
@@ -166,5 +159,12 @@ export class BrowserComponent extends EventEmitter {
             .getUserAgent()
             .replace(/(Electron|whatsapp-desktop)\/([0-9.]+) /gi, '')
             .replace(/-(beta|alfa)/gi, '');
+    }
+
+    private handleRedirect(event: Event, url: string): void {
+        if (!url.startsWith('https://web.whatsapp.com/')) {
+            event.preventDefault();
+            shell.openExternal(url);
+        }
     }
 }
