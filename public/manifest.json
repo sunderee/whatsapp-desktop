@@ -1,0 +1,9 @@
+{
+  "short_name": "WhatsApp Desktop",
+  "name": "WhatsApp Desktop: Bringing WhatsApp to Desktop",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "icons": []
+}
