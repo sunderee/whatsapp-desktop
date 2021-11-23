@@ -3,13 +3,17 @@ import {
     BeforeSendResponse,
     BrowserWindow,
     HeadersReceivedResponse,
+    Menu,
     OnBeforeSendHeadersListenerDetails,
     OnHeadersReceivedListenerDetails,
     protocol,
     ProtocolRequest,
-    ProtocolResponse
+    ProtocolResponse,
+    shell
 } from 'electron';
 import EventEmitter from 'events';
+import { readdirSync, readFileSync } from 'fs';
+import { resolve } from 'path';
 
 export class BrowserComponent extends EventEmitter {
     private window?: BrowserWindow;
@@ -17,6 +21,9 @@ export class BrowserComponent extends EventEmitter {
     constructor(private readonly app: App) {
         super();
         this.initialize();
+        this.initializeEvents();
+        this.loadURL();
+        this.createMenu();
     }
 
     initializeEvents(): void {
@@ -29,6 +36,8 @@ export class BrowserComponent extends EventEmitter {
 
             if (!/\([0-9]+\)/.test(title)) {
                 this.emit('clear-title');
+                this.window?.flashFrame(true);
+                this.emit('notification:clear');
             }
         });
 
@@ -36,6 +45,12 @@ export class BrowserComponent extends EventEmitter {
             this.app.quit();
             process.exit(0);
         });
+
+        this.window?.webContents.on('did-finish-load', async () => {
+            await this.loadScripts();
+        });
+
+        this.window?.webContents.on('will-navigate', this.handleRedirect);
     }
 
     private initialize(): void {
@@ -101,6 +116,67 @@ export class BrowserComponent extends EventEmitter {
                 result(content);
             }
         );
+    }
+
+    private async loadScripts(): Promise<void> {
+        const injectedScripts = readdirSync(resolve(__dirname, '..', 'scripts'));
+        for (const scriptFileName of injectedScripts) {
+            const script = readFileSync(resolve(__dirname, '..', 'scripts', scriptFileName), 'utf-8');
+            try {
+                await this.window?.webContents.executeJavaScript(`${script};`);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
+    private handleRedirect(event: Event, url: string): void {
+        if (!url.startsWith('https://web.whatsapp.com/')) {
+            event.preventDefault();
+            shell.openExternal(url);
+        }
+    }
+
+    private createMenu(): void {
+        const menu = Menu.buildFromTemplate([
+            {
+                label: '&Tools',
+                submenu: [
+                    {
+                        label: 'Reload',
+                        accelerator: 'CommandOrController+r',
+                        click: () => {
+                            this.loadURL();
+                        }
+                    }
+                ]
+            },
+            {
+                label: '&View',
+                submenu: [
+                    {
+                        label: 'Zoom +',
+                        accelerator: 'CommandOrControl+numadd',
+                        click: () => {
+                            if (this.window?.webContents.zoomLevel !== undefined) {
+                                this.window.webContents.zoomLevel *= 2;
+                            }
+                        }
+                    },
+                    {
+                        label: 'Zoom -',
+                        accelerator: 'CommandOrControl+numadd',
+                        click: () => {
+                            if (this.window?.webContents.zoomLevel !== undefined) {
+                                this.window.webContents.zoomLevel *= 0.5;
+                            }
+                        }
+                    }
+                ]
+            }
+        ]);
+
+        this.window?.setMenu(menu);
     }
 
     private getNewUserAgent(): string | undefined {
