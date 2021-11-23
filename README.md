@@ -14,6 +14,10 @@ npm run install
 npm run start
 ```
 
+## Motivation
+
+I don't like messy and disorganized code, with lots of meaningless stuff floating midair; that's how the original project felt like. I'm just trying to clean it up and enforce better coding practices.
+
 ## License
 
 Project is open sourced under MIT license.
