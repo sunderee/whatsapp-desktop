@@ -4,7 +4,7 @@ _WhatsApp Desktop_ is an experimental project heavily inspired by [Gustavo Gonza
 
 ## Usage
 
-**Under heavy development.** Install dependencies and run the app in development mode:
+No-nonsense setup: install dependencies and run the app.
 
 ```bash
 # Install dependencies
@@ -13,3 +13,7 @@ npm run install
 # Run in development mode
 npm run start
 ```
+
+## License
+
+Project is open sourced under MIT license.
