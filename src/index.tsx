@@ -1,12 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { App } from './App';
+import { app, ipcMain, IpcMainEvent } from 'electron';
+import { BrowserComponent } from './components/browser.component';
 
 import './index.css';
 
-ReactDOM.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-);
+app.on('ready', () => {
+    new BrowserComponent(app);
+    ipcMain.on('notifications', (event: IpcMainEvent) => {
+        // TODO: on notification
+        //window.notification();
+        event.sender.send('notification:new', true);
+    });
+});
