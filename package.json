@@ -7,13 +7,11 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,scss}\" --config .prettierrc.json",
     "lint": "eslint \"src/**/*.{ts,tsx,css}\" --fix",
     "prettify": "npm run format && npm run lint",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "build": "rm -rf dist && tsc --project tsconfig.json",
+    "start": "npm run build && electron main.js"
   },
   "dependencies": {
-    "electron": "^16.0.1",
-    "node-sass": "^6.0.1"
+    "electron": "^16.0.1"
   },
   "devDependencies": {
     "@types/electron": "^1.6.10",

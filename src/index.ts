@@ -1,7 +1,16 @@
-import { app, ipcMain, IpcMainEvent } from 'electron';
+import { app, ipcMain, IpcMainEvent, protocol } from 'electron';
 import { BrowserComponent } from './components/browser.component';
 
-import './index.css';
+process.title = 'WhatsApp Desktop';
+protocol.registerSchemesAsPrivileged([
+    {
+        scheme: 'events',
+        privileges: {
+            bypassCSP: true,
+            supportFetchAPI: true
+        },
+    }
+]);
 
 app.on('ready', () => {
     new BrowserComponent(app);
