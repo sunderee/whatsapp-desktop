@@ -8,7 +8,7 @@ protocol.registerSchemesAsPrivileged([
         privileges: {
             bypassCSP: true,
             supportFetchAPI: true
-        },
+        }
     }
 ]);
 

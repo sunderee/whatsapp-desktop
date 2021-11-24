@@ -2,8 +2,10 @@ import {
     App,
     BeforeSendResponse,
     BrowserWindow,
+    ContextMenuParams,
     HeadersReceivedResponse,
     Menu,
+    MenuItem,
     OnBeforeSendHeadersListenerDetails,
     OnHeadersReceivedListenerDetails,
     protocol,
@@ -19,6 +21,7 @@ export class BrowserComponent extends EventEmitter {
     constructor(private readonly app: App) {
         super();
         this.initialize();
+        this.initializeSpellchecker();
         this.initializeEvents();
         this.loadURL();
         this.createMenu();
@@ -40,6 +43,35 @@ export class BrowserComponent extends EventEmitter {
         });
 
         this.loadURL();
+    }
+
+    private initializeSpellchecker() {
+        this.window?.webContents.on('context-menu', (_, parameters: ContextMenuParams) => {
+            const menu = new Menu();
+            for (const suggestion of parameters.dictionarySuggestions) {
+                menu.append(
+                    new MenuItem({
+                        label: suggestion,
+                        click: () => {
+                            this.window?.webContents.replaceMisspelling(suggestion);
+                        }
+                    })
+                );
+            }
+
+            if (parameters.misspelledWord) {
+                menu.append(
+                    new MenuItem({
+                        label: 'Add to dictionary',
+                        click: () => {
+                            this.window?.webContents.session.addWordToSpellCheckerDictionary(parameters.misspelledWord);
+                        }
+                    })
+                );
+            }
+
+            menu.popup();
+        });
     }
 
     private loadURL(): void {
@@ -74,7 +106,7 @@ export class BrowserComponent extends EventEmitter {
 
                 callback({
                     cancel: false,
-                    responseHeaders: details.responseHeaders ?? {} as Record<string, string[]>,
+                    responseHeaders: details.responseHeaders ?? ({} as Record<string, string[]>)
                 });
             }
         );
