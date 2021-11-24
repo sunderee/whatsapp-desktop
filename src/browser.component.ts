@@ -24,6 +24,11 @@ export class BrowserComponent extends EventEmitter {
         this.createMenu();
     }
 
+    showNotification(): void {
+        this.window?.flashFrame(true);
+        this.emit('notification:new');
+    }
+
     private initialize(): void {
         this.window = new BrowserWindow({
             show: true,
@@ -163,11 +168,6 @@ export class BrowserComponent extends EventEmitter {
             .getUserAgent()
             .replace(/(Electron|whatsapp-desktop)\/([0-9.]+) /gi, '')
             .replace(/-(beta|alfa)/gi, '');
-    }
-
-    private showNotification(): void {
-        this.window?.flashFrame(true);
-        this.emit('notification:new');
     }
 
     private clearNotifications(): void {

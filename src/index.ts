@@ -1,5 +1,5 @@
 import { app, ipcMain, IpcMainEvent, protocol } from 'electron';
-import { BrowserComponent } from './components/browser.component';
+import { BrowserComponent } from './browser.component';
 
 process.title = 'WhatsApp Desktop';
 protocol.registerSchemesAsPrivileged([
@@ -13,10 +13,9 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 app.on('ready', () => {
-    new BrowserComponent(app);
+    const window = new BrowserComponent(app);
     ipcMain.on('notifications', (event: IpcMainEvent) => {
-        // TODO: on notification
-        //window.notification();
+        window.showNotification();
         event.sender.send('notification:new', true);
     });
 });
