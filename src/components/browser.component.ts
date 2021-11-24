@@ -81,7 +81,7 @@ export class BrowserComponent extends EventEmitter {
                 const parameters = url.split('/');
 
                 if (parameters[0] == 'notifications') {
-                    // TODO: show notification
+                    this.showNotification();
                 }
                 const content = Buffer.from('');
                 result(content);
@@ -96,6 +96,10 @@ export class BrowserComponent extends EventEmitter {
             title = title.replace(/(\([0-9]+\) )?.*/, '$1WhatsApp-Desktop');
             this.window?.setTitle(title);
             this.emit('title-updated', title);
+            if (!/\([0-9]+\)/.test(title)) {
+                this.emit('clear-title');
+                this.clearNotifications();
+            }
 
             if (!/\([0-9]+\)/.test(title)) {
                 this.emit('clear-title');
@@ -159,6 +163,16 @@ export class BrowserComponent extends EventEmitter {
             .getUserAgent()
             .replace(/(Electron|whatsapp-desktop)\/([0-9.]+) /gi, '')
             .replace(/-(beta|alfa)/gi, '');
+    }
+
+    private showNotification(): void {
+        this.window?.flashFrame(true);
+        this.emit('notification:new');
+    }
+
+    private clearNotifications(): void {
+        this.window?.flashFrame(false);
+        this.emit('notification:clear');
     }
 
     private handleRedirect(event: Event, url: string): void {
