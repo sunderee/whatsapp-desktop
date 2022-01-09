@@ -8,10 +8,10 @@ No-nonsense setup: install dependencies and run the app.
 
 ```bash
 # Install dependencies
-npm run install
+yarn install
 
 # Run in development mode
-npm run start
+yarn run start
 ```
 
 ## Motivation
